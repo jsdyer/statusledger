@@ -16,6 +16,7 @@
   "access": "browser",
   "data_info": {
     "mode": "snapshot",
-    "detail": "Official GitHub and DigitalOcean status APIs supply daily incident, maintenance and component captures, with up to 90 retained collections."
+    "detail": "Official GitHub and DigitalOcean status APIs supply daily incident, maintenance and component captures, with up to 90 retained collections.",
+    "cadence": "Daily"
   }
 }
