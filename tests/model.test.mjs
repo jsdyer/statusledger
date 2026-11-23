@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {filterEvents,compare,events,csv,eventDate,closed} from '../web/model.mjs';
+import {filterEvents,compare,events,csv,eventDate,closed,readableText} from '../web/model.mjs';
 const incident={id:'i1',name:'API degraded',kind:'incident',status:'investigating',impact:'minor',created_at:'2026-11-21T09:00:00Z',started_at:'2026-11-21T08:00:00Z',updated_at:'2026-11-21T09:00:00Z',components:[{id:'api',name:'API'}],updates:[{id:'u1',body:'Investigating timeouts',status:'investigating'}],url:'https://example.com/incidents/i1'};
 const snapshot=(items,provider='github')=>({providers:[{id:provider,name:provider,events:items}]});
 test('filters preserve provider/component distinction and search provider update text',()=>{
@@ -34,4 +34,13 @@ test('CSV preserves quoted and multiline source text while neutralizing formula 
  const result=csv(events(snapshot([{...incident,name:'=SUM(1,2)\n"example"'}])),'2026-11-23T00:00:00Z');
  assert.match(result,/"'=SUM\(1,2\)\n""example"""/);
  assert.match(result,/captured_at/);
+});
+
+test('provider HTML formatting becomes readable text without mutating retained evidence',()=>{
+ const raw='Resolved<br /><br />Pull requests &amp; API recovered.<p><strong>Impact:</strong> &lt;1% &#8212; confirmed.</p><a href="javascript:alert(1)">Report</a>';
+ assert.equal(readableText(raw),'Resolved\n\nPull requests & API recovered.\n\nImpact: <1% — confirmed.\n\nReport');
+ assert.ok(raw.includes('<br />'));
+ assert.equal(readableText('&#x1F426; &#x110000; &unknown;'),'🐦 &#x110000; &unknown;');
+ // Unknown markup remains inert text; display code never assigns HTML.
+ assert.equal(readableText('<script>alert(1)</script>'),'<script>alert(1)</script>');
 });

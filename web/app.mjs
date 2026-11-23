@@ -1,4 +1,4 @@
-import {closed, titleCase, eventDate, keyOf, events, filterEvents, compare, csv} from './model.mjs';
+import {closed, titleCase, eventDate, keyOf, events, filterEvents, compare, csv, readableText} from './model.mjs';
 const $ = id => document.getElementById(id);
 const el = (tag, content, cls) => {const n=document.createElement(tag);if(content!==undefined)n.textContent=content;if(cls)n.className=cls;return n;};
 const date = value => value ? new Intl.DateTimeFormat('en-CA',{dateStyle:'medium',timeStyle:'short',timeZone:'UTC'}).format(new Date(value))+' UTC' : 'Not supplied';
@@ -53,7 +53,7 @@ function renderDetail(e){
  const a=external(e.url,'Read the original provider report ↗');a.className='source-link';panel.append(el('br'),a);
  const dl=el('dl');for(const [label,value] of [[e.kind==='maintenance'?'Scheduled start':'Reported start / creation',date(eventDate(e))],['Provider last updated',date(e.updated_at)],['Impact reported',titleCase(e.impact)],['Components',e.components.map(c=>c.name).join(', ')||'None named'],...(e.kind==='maintenance'?[['Scheduled end',date(e.scheduled_until)]]:[])]){const group=el('div');group.append(el('dt',label),el('dd',value));dl.append(group);}panel.append(dl,el('h4',`${e.updates.length} PROVIDER UPDATES · NEWEST FIRST`));
  const list=el('ol',undefined,'timeline');
- for(const u of [...e.updates].sort((a,b)=>(b.display_at||b.created_at||'').localeCompare(a.display_at||a.created_at||''))){const li=el('li');li.append(el('div',`${titleCase(u.status)} · ${date(u.display_at||u.created_at)}`,'update-meta'),el('p',u.body||'No narrative supplied.'));list.append(li);}
+ for(const u of [...e.updates].sort((a,b)=>(b.display_at||b.created_at||'').localeCompare(a.display_at||a.created_at||''))){const li=el('li');li.append(el('div',`${titleCase(u.status)} · ${date(u.display_at||u.created_at)}`,'update-meta'),el('p',readableText(u.body)||'No narrative supplied.'));list.append(li);}
  panel.append(list);if(!e.updates.length)panel.append(el('p','No update messages in this response.','muted'));
 }
 function sources(){
@@ -66,7 +66,7 @@ async function runComparison(){
  if(beforeFile===afterFile){out.append(el('p','Choose two different retained captures to compare.','empty'));return;}
  try{const [before,after]=await Promise.all([read(beforeFile),read(afterFile)]);if(before.captured_at>=after.captured_at){out.append(el('p','Choose an earlier capture that precedes the later capture.','empty'));return;}const changes=compare(before,after);out.append(el('p',`${changes.length} changed, appeared or missing records between ${date(before.captured_at)} and ${date(after.captured_at)}. Counts describe reporting changes.`));
   if(!changes.length)out.append(el('p','The event records are unchanged between these captures. Component status may still differ.','empty'));
-  for(const c of changes){const box=el('article',undefined,'compare-entry');box.append(chip(c.type==='not-present'?'Not present later':titleCase(c.type)),el('h3',`${c.event.providerName} · ${c.event.name}`),el('p',c.details),external(c.event.url,'Original report ↗'));if(c.type==='changed'){const d=el('details');d.append(el('summary','Inspect previous and later provider text'));for(const [label,event] of [['Earlier',c.previous],['Later',c.event]]){d.append(el('h4',label));for(const u of event.updates)d.append(el('p',`${date(u.display_at||u.created_at)} · ${titleCase(u.status)}\n${u.body}`));}box.append(d);}out.append(box);}
+  for(const c of changes){const box=el('article',undefined,'compare-entry');box.append(chip(c.type==='not-present'?'Not present later':titleCase(c.type)),el('h3',`${c.event.providerName} · ${c.event.name}`),el('p',c.details),external(c.event.url,'Original report ↗'));if(c.type==='changed'){const d=el('details');d.append(el('summary','Inspect previous and later provider text'));for(const [label,event] of [['Earlier',c.previous],['Later',c.event]]){d.append(el('h4',label));for(const u of event.updates)d.append(el('p',`${date(u.display_at||u.created_at)} · ${titleCase(u.status)}\n${readableText(u.body)}`));}box.append(d);}out.append(box);}
   for(const p of after.providers){const old=before.providers.find(x=>x.id===p.id);if(!old)continue;const changes=p.components.filter(c=>old.components.some(x=>x.id===c.id&&x.status!==c.status));if(changes.length)out.append(el('p',`${p.name} component state changes: ${changes.map(c=>`${describeComponent(p,c)} → ${titleCase(c.status)}`).join('; ')}`));}
  }catch(e){out.append(el('p','Comparison could not load. Please retry.','error'));}
 }

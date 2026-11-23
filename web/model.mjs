@@ -2,6 +2,24 @@ export const closed = e => ['resolved', 'completed'].includes(e.status);
 export const titleCase = s => String(s || 'unknown').replaceAll('_', ' ');
 export const eventDate = e => e.kind === 'maintenance' ? (e.scheduled_for || e.created_at) : (e.started_at || e.created_at);
 export const keyOf = e => `${e.provider}:${e.kind}:${e.id}`;
+// Display formatting only: source bodies remain unchanged in captures and exports.
+// Callers still render the returned string with textContent, never as HTML.
+export function readableText(value) {
+  const entities = {amp:'&',lt:'<',gt:'>',quot:'"',apos:"'",nbsp:' ',mdash:'—',ndash:'–',hellip:'…',lsquo:'‘',rsquo:'’',ldquo:'“',rdquo:'”',bull:'•'};
+  return String(value ?? '')
+    .replace(/<br\b[^>]*\/?\s*>/gi, '\n')
+    .replace(/<\/?(?:p|div|blockquote|h[1-6]|ul|ol)\b[^>]*>/gi, '\n\n')
+    .replace(/<li\b[^>]*>/gi, '\n• ').replace(/<\/li\s*>/gi, '\n')
+    .replace(/<\/?(?:a|strong|em|b|i|u|span|code|pre)\b[^>]*>/gi, '')
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, entity) => {
+      if (entity.startsWith('#')) {
+        const code = entity[1].toLowerCase() === 'x' ? parseInt(entity.slice(2),16) : Number(entity.slice(1));
+        return code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff) ? String.fromCodePoint(code) : match;
+      }
+      return entities[entity.toLowerCase()] ?? match;
+    })
+    .replace(/\r\n?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+}
 export function events(snapshot) {
   return snapshot.providers.flatMap(p => p.events.map(e => ({...e, provider:p.id, providerName:p.name})));
 }

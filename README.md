@@ -18,7 +18,7 @@ The initial DigitalOcean capture used its first-party Statuspage host, `w4cz49tc
 
 No independent probes run. Incident counts are **not uptime measurements or a ranking**. Products, regions, component hierarchies, source windows and reporting practices differ. A quiet feed cannot prove uninterrupted service. `resolved` and `completed` are closed only when explicitly reported; an event absent from a later feed is labelled **not present later**, not resolved.
 
-Each capture includes normalized event text, provider statuses and components; per-endpoint retrieval time, byte count and SHA-256 of the original response. The checksum identifies the original response bytes; it is not the checksum of the normalized download. Unneeded provider delivery and internal metadata are omitted. Provider-supplied narratives are rendered as text, not executable markup.
+Each capture includes normalized event text, provider statuses and components; per-endpoint retrieval time, byte count and SHA-256 of the original response. The checksum identifies the original response bytes; it is not the checksum of the normalized download. Unneeded provider delivery and internal metadata are omitted. Provider-supplied narratives are rendered as text, not executable markup. Common provider HTML line breaks, paragraph tags and character entities are converted to readable display text; the original narrative string remains unchanged in retained captures and JSON exports.
 
 ### Dates and history
 
