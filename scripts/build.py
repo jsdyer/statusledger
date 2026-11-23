@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build a browser tool using Python's standard library; no network required."""
 from html import escape
+from collect import validate_archive
 import json
 from pathlib import Path
 import re
@@ -42,6 +43,7 @@ def metadata(root=ROOT):
 
 def build(root=ROOT):
     tool = metadata(root)
+    validate_archive(root / "web/data")
     output = root / "dist"
     if output.is_symlink():
         raise ValueError("dist must not be a symlink")

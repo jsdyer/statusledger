@@ -65,6 +65,14 @@ class BuildTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "immediately usable"):
             metadata(self.root)
 
+    def test_incomplete_data_cannot_replace_good_build(self):
+        build(self.root)
+        previous = (self.root / "dist/index.html").read_bytes()
+        (self.root / "web/data/index.json").write_text('{"schema_version":1,"captures":[]}')
+        with self.assertRaisesRegex(ValueError, "capture index"):
+            build(self.root)
+        self.assertEqual((self.root / "dist/index.html").read_bytes(), previous)
+
     def test_failed_build_keeps_existing_output(self):
         build(self.root)
         existing = (self.root / "dist/index.html").read_bytes()

@@ -1,34 +1,18 @@
 <!doctype html>
-<html lang="en-CA">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="{{DESCRIPTION}}">
-  <title>{{TITLE}} · CoolCode</title>
-  <link rel="stylesheet" href="./style.css">
-  <script type="module" src="./app.mjs"></script>
-  {{VISIT_COUNTER}}
-</head>
-<body data-tool-id="{{TOOL_ID}}">
-  <a class="skip" href="#main">Skip to content</a>
-  <header><a href="https://coolcode.ca/">← CoolCode.ca</a><a href="{{SOURCE_URL}}">Source &amp; instructions ↗</a></header>
-  <main id="main">
-    <p class="eyebrow">Browser tool starter</p>
-    <h1>{{TITLE}}</h1>
-    <p class="intro">{{DESCRIPTION}}</p>
-    <section aria-labelledby="example-title">
-      <h2 id="example-title">Clean a list</h2>
-      <p>Trim spaces, skip blank lines and remove exact duplicates. Capitalization stays distinct.</p>
-      <div class="panels">
-        <div><label for="input">Your lines</label><textarea id="input" rows="10" maxlength="100000" spellcheck="false" placeholder="Paste one item per line"></textarea></div>
-        <div><label for="output">Cleaned lines</label><textarea id="output" rows="10" readonly spellcheck="false"></textarea></div>
-      </div>
-      <div class="actions"><button id="sample" type="button">Load example</button><button id="clear" type="button">Clear</button><button id="copy" type="button" hidden>Copy result</button></div>
-      <p id="status" role="status" aria-live="polite">Paste a list to begin.</p>
-      <noscript><p>This tool needs JavaScript to process your text. The source is available above.</p></noscript>
-    </section>
-    <aside aria-label="Privacy"><strong>Stays on your device.</strong> The browser processes your text in this tab. Reloading clears it.</aside>
-  </main>
-  <footer>Part of <a href="https://coolcode.ca/">the CoolCode collection</a>. {{ISSUE_LINK}}</footer>
-</body>
-</html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="{{DESCRIPTION}}"><meta name="theme-color" content="#182e39"><title>{{TITLE}} · CoolCode</title><link rel="stylesheet" href="./style.css">{{VISIT_COUNTER}}</head>
+<body data-tool="{{TOOL_ID}}"><a class="skip" href="#ledger">Skip to the ledger</a>
+<header class="masthead"><a href="https://coolcode.ca/" class="brand">CoolCode<span>.ca</span></a><nav aria-label="Page"><a href="#ledger">Ledger</a><a href="#changes">Capture changes</a><a href="#method">Sources & method</a></nav></header>
+<main><section class="hero"><div><p class="eyebrow"><span class="dot"></span> OFFICIAL REPORTS / RETAINED EVIDENCE</p><h1>Status Ledger<span>.</span></h1><p class="intro">An outage has a story.<br>Keep what the provider said.</p><p class="hero-copy">Explore GitHub and DigitalOcean incident updates, planned maintenance and dated captures. Compare what changed without turning a status page into an uptime claim.</p></div><aside class="capture-card"><span class="eyebrow">LATEST COLLECTION</span><strong id="captured">Loading capture…</strong><p id="capture-count">Reading retained records.</p><span class="schedule">Daily collection · all times UTC</span><a href="#method">How this record is kept ↗</a></aside></section>
+<div id="load-status" role="status" class="load-status">Loading the retained ledger…</div>
+<section class="provider-overview" id="providers" aria-label="Provider comparison"></section>
+<section id="ledger" class="workspace"><div class="section-heading"><div><p class="eyebrow">01 / THE PROVIDER RECORD</p><h2>Find the incident behind the interruption.</h2></div><button id="export-csv" type="button" disabled>Export filtered CSV ↓</button></div>
+<div class="filters"><label class="wide">Find an incident or update<input id="search" type="search" placeholder="Try Actions, networking, SFO…"></label><label>Provider<select id="provider"><option value="">Both providers</option><option value="github">GitHub</option><option value="digitalocean">DigitalOcean</option></select></label><label>Record type<select id="kind"><option value="">Incidents & maintenance</option><option value="incident">Incidents</option><option value="maintenance">Maintenance</option></select></label><label>State<select id="state"><option value="">All reported states</option><option value="open">Not marked resolved / completed</option><option value="closed">Resolved / completed</option></select></label><label>Component<select id="component"><option value="">All components</option></select></label><label>Event from<input id="from" type="date"></label><label>Event through<input id="until" type="date"></label><label>Dated capture<select id="capture" aria-describedby="capture-help"></select></label><button id="reset" type="button" class="subtle">Clear filters</button></div>
+<p class="muted" id="capture-help">Event date means provider-reported start, or creation when no start is supplied; maintenance uses its scheduled start. Each capture is a limited provider feed, not a complete archive.</p>
+<div class="results-line"><p id="result-count" role="status"></p><p>Provider statements · not independent measurements</p></div>
+<div class="ledger-grid"><div id="event-list" class="event-list" aria-label="Matching records"></div><article id="detail" class="detail" aria-live="polite"><p class="muted">Select a record to inspect its update timeline.</p></article></div><button id="more" type="button" hidden>Show 40 more records</button>
+</section>
+<section id="changes" class="changes-section"><div class="section-heading"><div><p class="eyebrow">02 / WHAT CHANGED BETWEEN CAPTURES</p><h2>Keep the edits in view.</h2></div><button id="export-json" type="button" disabled>Save selected capture JSON ↓</button></div><p>Provider update timelines can describe earlier events. Our own capture history starts with the first saved collection; we do not reconstruct past versions.</p><div class="compare-controls"><label>Earlier capture<select id="before"></select></label><label>Later capture<select id="after"></select></label><button id="compare" type="button" disabled>Compare captures</button></div><div id="comparison" role="status"></div></section>
+<section id="method" class="method"><div><p class="eyebrow">03 / READ THE EVIDENCE</p><h2>A record of reporting,<br>not an uptime score.</h2><p>These are the providers’ public statements. Incident counts cannot rank service reliability: products, reporting practices and feed windows differ. A quiet feed is not evidence of uninterrupted service.</p><p>We fetch six public API responses once a day, retain the latest 90 successful captures and keep earlier event text in those captures. A failed collection leaves the previous published capture intact. GitHub schedules can run late; check collection time before relying on a record.</p></div><div><h3>Dates, gaps & privacy</h3><ul><li><strong>Collection time</strong> is when CoolCode saved the responses. Each endpoint has its own retrieval time.</li><li><strong>Reported update</strong> and <strong>event dates</strong> come from the provider and may be revised.</li><li><strong>Missing later</strong> means absent from that response, never automatically resolved. Providers expose a limited recent window.</li><li>Filters stay in this browser. No account or API key is needed. Downloads contain public provider data. CoolCode’s standard visit counter also loads.</li></ul><p><a href="https://www.githubstatus.com/api" target="_blank" rel="noopener noreferrer">GitHub API documentation ↗</a><br><a href="https://status.digitalocean.com/api" target="_blank" rel="noopener noreferrer">DigitalOcean API documentation ↗</a></p></div></section>
+<details class="provenance"><summary>Inspect source response timestamps and checksums</summary><div id="sources"></div></details>
+<footer><p>Built for the curious. <a href="https://coolcode.ca/outagescope/">Explore Outage Scope ↗</a></p><div><a href="{{SOURCE_URL}}">Source code</a>{{ISSUE_LINK}}</div></footer>
+</main><script type="module" src="./app.mjs"></script></body></html>

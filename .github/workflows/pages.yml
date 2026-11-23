@@ -3,11 +3,24 @@ on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    - cron: "17 13 * * *"
   workflow_dispatch:
+    inputs:
+      refresh:
+        description: "Collect a new official status capture before publishing"
+        type: boolean
+        default: true
 permissions:
   contents: read
+concurrency:
+  group: statusledger-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
@@ -15,13 +28,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          persist-credentials: false
+          persist-credentials: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
+      - name: Capture official provider reports
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.refresh))
+        run: python3 scripts/collect.py
       - name: Test the application
         run: node --test tests/*.test.mjs
       - name: Test the builder
@@ -46,6 +62,15 @@ jobs:
           python3 -m playwright install --with-deps chromium
       - name: Check application in a browser
         run: python3 tests/browser_smoke.py
+      - name: Retain validated daily capture
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.refresh))
+        run: |
+          git add web/data
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: retain official status capture"
+          git push origin HEAD:main
       - name: Save browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
