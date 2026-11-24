@@ -3,6 +3,10 @@
   "retention_captures": 90,
   "captures": [
     {
+      "captured_at": "2026-11-24T00:55:46Z",
+      "file": "20261124T005546Z.json"
+    },
+    {
       "captured_at": "2026-11-23T04:23:40Z",
       "file": "20261123T042340Z.json"
     }
